@@ -1,12 +1,14 @@
 package lib;
 import java.sql.*;
 import java.util.Scanner;
+import ui.*;
 
 public class DBAPI {
 
     final String jdbcURL
     = "jdbc:oracle:thin:@ora.csc.ncsu.edu:1521:orcl";
 
+    ODLCLI api;
     Connection conn;
     Statement stmt = null;
     ResultSet rs = null;
@@ -43,7 +45,7 @@ public class DBAPI {
           stmt.executeUpdate("drop table Makes_Observation");
           stmt.executeUpdate("drop table Has_Illness");
           stmt.executeUpdate("drop table Observations");
-          stmt.executeUpdate("drop table Alerts");
+          stmt.executeUpdate("drop table Threshold_check");
           stmt.executeUpdate("drop table HAS_HF");
           stmt.executeUpdate("drop table patient_info");
           stmt.executeUpdate("drop table Observation_Type");
@@ -76,7 +78,7 @@ public class DBAPI {
        stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
 			   "VALUES ('HIV','Temprature','Physiological','Amount in Fahrenheit')");
        stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-			   "VALUES ('General', 'Diet','Behavioral','What was consumed and Amount in sevings')");
+			   "VALUES ('General', 'Diet','Behavioral','What was consumed,Amount in sevings')");
        stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
 			   "VALUES ('General', 'Weight','Physiological','Amount in Pounds')");
        stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
@@ -92,21 +94,21 @@ public class DBAPI {
         stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
   			   "VALUES ('scooper', 'COPD','Oxygen Saturation')");
        // System.out.println(" inserted has illness");
-        stmt.executeUpdate("create table Alerts" +
-       		 "(Type varchar(40), Threshhold varchar(50), Message varchar(100), primary key (Type))");
+        stmt.executeUpdate("create table Threshold_check" +
+       		 "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50))");
       //  System.out.println("created alerts");
-        stmt.executeUpdate("Insert into Alerts (Type,Threshhold,Message)"+
-        		"values ('Diet',null,null)");
+        stmt.executeUpdate("Insert into Threshold_check (type,AdditionalInfo,Threshold)"+
+        		"values ('Diet','What was consumed,Amount in sevings',null)");
        // System.out.println(" inserted alerts");
         
         stmt.executeUpdate("create table Observations"+
-"(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20), AdditionalInfo varchar(100), primary key (OId),foreign key (Type) references Alerts(Type))");
+"(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20), AdditionalInfo varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') ), primary key (OId))");
       
       //  System.out.println("not inserted table observations new");
        // stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observtion,time_of_observation,AdditionalInfo)"+
 //"values ('O1', 'Diet', to_date('01-01-2011','dd-mm-yyyy'),to_date('18:12:02', 'HH24:MI:SS'),'What was consumed and amount in servings: egg 1, orange ½, toast 1, margarine 1')");
-        stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo)"+
-        		"values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed and amount in servings: egg 1, orange ½, toast 1, margarine 1')");
+        stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo,isactive)"+
+        		"values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed and amount in servings: egg 1, orange ½, toast 1, margarine 1','FALSE')");
      
        
          stmt.executeUpdate("create table Makes_Observation" +
@@ -158,9 +160,36 @@ public class DBAPI {
       	//	System.out.println("hello");
       		int j=0,k=0,counter=0;
       		String Obs_Data=null;
+      		boolean flag=false;
       		Scanner sc= new Scanner(System.in);
-          try
+        try  
        {
+        	rs = stmt.executeQuery("select distinct type from Observation_Type where Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= '"+ patientId +"')");
+        	while(rs.next()){
+        		if((rs.getString("type").equals(Obs_Type)))
+        			flag=true;
+        	}
+        if(flag==false){
+        
+        	System.out.println("Type does not exist. Please select the other option or enter the new Type");
+        	//api.recordObservation(patientId);
+        	return;
+        }
+        
+        System.out.println("Hello");
+        stmt.executeQuery("create or replace TRIGGER MakesObservationInsert"+    //This trigger not working currently
+				  " After Insert on Observations"+
+				" REFERENCING NEW AS newrow"+
+				  " insert into Makes_Observaton (pId, OId, Date_of_record ,time_of_record)"+
+				 " values ('"+patientId+"',newrow.OId, sysdate,'18:12:02')");
+        	
+        count = stmt.executeQuery("select count(*) as noOfRows from Observations");
+		  System.out.println("Before parsing : "+counter);
+		  while (count.next()) {
+		   counter= Integer.parseInt(count.getString("noOfRows"));
+		  }
+		  counter+=1;
+        	  
     	rs = stmt.executeQuery("select distinct AdditionalInfo from Observation_Type where Type ='"+Obs_Type+"'");
         	 // rs = stmt.executeQuery("select AdditionalInfo from Observation_Type where Type ='Diet' and Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= 'ggeorge')");
     	while (rs.next()) {
@@ -170,20 +199,18 @@ public class DBAPI {
 		  while(j!=data.length)
 		  {
 			  System.out.println("Enter "+ data[j]);
-			  Obs_Data+= ""+ sc.next();
+			  Obs_Data = sc.next();
+			  stmt.executeUpdate("Insert into Observations "+
+					  "values ('O"+counter+"','"+Obs_Type+"','"+ obsDate +"','"+ obsTime + "','"+ Obs_Data +"','FALSE')");
 			  j++;			  
 		  }
     	}
     	System.out.println("Before : "+counter);
-		  count = stmt.executeQuery("select count(*) as noOfRows from Observations");
-		  System.out.println("Before parsing : "+counter);
-		  while (count.next()) {
-		   counter= Integer.parseInt(count.getString("noOfRows"));
-		  }
-		  counter+=1;
+		 
 		//  System.out.println(counter);
-		  stmt.executeUpdate("Insert into Observations "+
-"values ('O"+counter+"','"+Obs_Type+"','"+ obsDate +"','"+ obsTime + "','"+ Obs_Data +"')");
+		 
+		  
+		  
 		  
 		  System.out.println(patientId);
 		  
@@ -191,16 +218,17 @@ public class DBAPI {
 		  
 		 //If no trigger how to enter corresponding oid..that would be an issue 
 		  
-		  stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
-	        		"values ('"+patientId+"','O"+counter+"', sysdate,'18:12:02')"); // here date and time are supposed to be system date and time as i trigger below but for the time being we have this
+		//  stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
+	        	//	"values ('"+patientId+"','O"+counter+"', sysdate,'18:12:02')"); // here date and time are supposed to be system date and time as i trigger below but for the time being we have this
 		 System.out.println("inserted n makes");
 		  
+		
 		  /*
 		   create or replace Trigger MakesObservationInsert
 		   After Inser on Observations
 		   Referencing new row as NewRow
 		   insert into Makes_Observaton (pId, OId, Date_of_record ,time_of_record)
-		   values (patient_Id, NewRow.OId, TO_CHAR(SYSDATE,'dd-Mon-yyy'),TO_CHAR(SYSDATE,' hh:mi:ss PM'))
+		  values ('"+patientId+"','O"+counter+"', sysdate,'18:12:02')")
 		   */
 		
     	
@@ -240,6 +268,9 @@ public class DBAPI {
     	public void addNewType(String type,String category,String addtionalInformation)
     	{
     		boolean flag=true;
+    		 String obsData;
+	    	 int j=0;
+	    	 
     	     try
     	       {//To check if the type already exists
     	    	 check = stmt.executeQuery("select type from observation_type where illness ='General' ");
@@ -254,11 +285,22 @@ public class DBAPI {
     	    		 }
     	    	 }
     	    	 
-    	    	 //here first check if that particular type already exists in general category
+    	    	
+    	    		 //here first check if that particular type already exists in general category
     	    	if(flag)
     	    	{
-    	    	rs = stmt.executeQuery("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
+    	    	stmt.executeQuery("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
     	 			   "VALUES ('General','"+type+"','"+category+"','"+ addtionalInformation +"')"); 
+    	    	 String [] data= addtionalInformation.split(",");
+    			  
+    			  while(j!=data.length)
+    			  {
+    				//  System.out.println("Enter "+ data[j]);
+    				  stmt.executeQuery("INSERT INTO Threshold_check (type,AdditionalInfo,Threshold)"+
+    			        		"values ('"+type+"','"+data[j]+"',null)");   	//This insertion is for patients , in case of physician you will have to modify Threshold according to the input
+    				  j++;			  
+    			  }
+    	    	
     	    	}
     	    	 
     	    	}

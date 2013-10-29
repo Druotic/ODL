@@ -35,9 +35,9 @@ public class ODLCLI
         Scanner sc = new Scanner(System.in);
         System.out.println("Username (ie \"jsmith\"): ");
         String user = sc.next();
-        System.out.print("Password: ");
-        String passwd = sc.next();
-       //p String passwd = new String(System.console().readPassword("Password: "));
+      //  System.out.print("Password: ");
+      //  String passwd = sc.next();
+       String passwd = new String(System.console().readPassword("Password: "));
         
         api = new DBAPI();
         if (!api.authDB(user, passwd)) {
@@ -103,8 +103,10 @@ public class ODLCLI
         System.out.println("Username");
         uname=s.next();
        id=uname;
-        System.out.println("Password");
-        password=s.next();
+  //Use hidden password - comment out only for local testing
+        password = new String(System.console().readPassword("Password: "));
+       // System.out.println("Password");
+       // password=s.next();
                
         //call to DBAPI.authLogin for validation
         try{
@@ -164,7 +166,7 @@ while(true)
         String input = in.next();
         switch (input) {
             case "1":
-                recordObservation();
+                recordObservation(id);
                 break;
             case "2":
                 viewObservation(id);
@@ -186,12 +188,12 @@ while(true)
         }
        }
     }
-    public void recordObservation()
+    public void recordObservation(String id)
     {
     	String obsType,obsDate,obsTime;
     	Scanner sc = new Scanner(System.in);
     	System.out.println("Enter observations for the following available types based on your Illness :");
-    	api.observationMenu("ggeorge");
+    	api.observationMenu(id);
     	System.out.print("Enter your type of Observation : ");
     	obsType= sc.next();
     	System.out.println(obsType +":\nEnter :");
@@ -199,7 +201,7 @@ while(true)
     	obsDate= sc.next();
     	System.out.println("Enter Time of Observation in HH:mm:ss format :");
     	obsTime= sc.next();
-    	api.enterObservation("ggeorge",obsType,obsDate,obsTime);
+    	api.enterObservation(id,obsType,obsDate,obsTime);
     	
     }
     public void viewObservation(String patientId)
