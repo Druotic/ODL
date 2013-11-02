@@ -337,7 +337,7 @@ public class DBAPI {
 	        		 String typeObv = rs.getString("type");
 	                 System.out.println(typeObv);
 	                 i++;
-	             }
+	             }  
 	        	 
 	        	 System.out.println("Enter the Type for which you want to view the observations");
 	        	 typeOfObservation= sc.next();
@@ -360,6 +360,28 @@ public class DBAPI {
 	            }
 	    }
 
+    public String getObservationsByType(String id) {
+        String result = "";
+        try {
+            rs = stmt.executeQuery("select distinct type from observations o,makes_observation m where o.OId=m.OId and m.pId= '"+ id +"'");
+            while (rs.next()) {
+                String type = rs.getString("type");
+                result += "\n" + "---" + type + "---";
+                ResultSet rs_inner = stmt.executeQuery("select * from Observations o,makes_observation m where o.oid=m.oid and o.type='"+type+"' and m.pid='"+id+"'" +
+                    " ORDER BY o.Date_of_observation, o.time_of_observation");
+                while (rs_inner.next()) {
+                    result += "Date of Observation: " + rs_inner.getString("date_of_observation") + "\n";
+                    result += "Time of Observation: " + rs_inner.getString("time_of_observation") + "\n";
+                    result += rs_inner.getString("AdditionalInfo") + ": " + rs_inner.getString("ThreshValue") + "\n";
+                    //TODO - add actual value
+                }
+            }
+            System.out.println("End of Observation List.");
+        }
+        catch (SQLException e) {
+        }
+        return result;
+    }
 
     public boolean addAssoc(String type, String illness) {
         //invalid illness type specified
@@ -781,6 +803,19 @@ public class DBAPI {
    		 isValid=false;
    	 }
    	return isValid;
+    }
+
+    public String getID(String name)
+    {
+        String id = "";
+        try {
+            ResultSet rs = stmt.executeQuery("SELECT Patient_Id FROM Patient_Info WHERE Patient_Name = '" + name + "'");
+            if(rs.next())
+                id = rs.getString("Patient_Id");
+        }
+        catch (SQLException e) {
+        }
+        return id;
     }
 
     public boolean assignPatientIllness(String name, String illness) {

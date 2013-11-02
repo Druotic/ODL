@@ -175,7 +175,6 @@ public class ODLCLI
                 case "4":
                 	  viewAlerts(id);//write alert function name here
                       api.viewMessages(id);
-                	
                     break;
                 case "5":
                     healthFriendsMenu();
@@ -417,8 +416,10 @@ public class ODLCLI
         if (i_in == 1) {
             System.out.print("Name: ");
             String name = in.nextLine().trim();
+            String uid = api.getID(name);
             if(checkPName(name)) {
                 System.out.println("Patient Data/Observations by Observation Type for patient \"" + name + "\":");
+                System.out.println(api.getObservationsByType(uid));
                 //TODO.
             }
             else {
@@ -440,8 +441,6 @@ public class ODLCLI
       boolean hasHF=true;
       boolean isValid;
   	System.out.println("\n\nSelect an option");
-  	Scanner in=new Scanner(System.in);
-  	
   	System.out.println("1. View existing Health Friends");
   	System.out.println("2. Find a new Health Friend");
   	System.out.println("3. Find a Health Friend at risk");
