@@ -75,7 +75,6 @@ public class DBAPI {
         //insert SQL to drop all related tables
         
     
-
     public boolean initTables() {
         System.out.println("Initializing tables with sample data.");
         try
@@ -118,13 +117,13 @@ public class DBAPI {
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                 "VALUES ('Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen e.g. 95% ?')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
-                    "VALUES ('Exersice','Behavioral','What kind: walking/cycling/jogging, Duration: number of minutes ')");
+                    "VALUES ('Exercise','Behavioral','What kind: walking/cycling/jogging, Duration: number of minutes ')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                     "VALUES ('Mood','Psychological','One of the values: happy/sad/neutral')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                     "VALUES ('Exercise Tolerance','Physiological','Number of steps before exhaustion')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
-                    "VALUES ('Pain','Physiological','Scale [1 – 10]')");
+                    "VALUES ('Pain','Physiological','Scale [1 - 10]')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                     "VALUES ('Contraction','Physiological','Frequency - # per hour')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
@@ -188,17 +187,17 @@ public class DBAPI {
                     "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50),"
                     + "primary key (Type,AdditionalInfo),foreign key(Type) references Observation_type(type))");
             stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
-            		+ "VALUES ('Temperature', 'Amount in Fahrenheit', '>102')");
+            + "VALUES ('Temperature', 'Amount in Fahrenheit', '>102')");
             stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
-            		+ "VALUES ('Oxygen Saturation', 'the fraction of hemoglobin that is saturated by oxygen e.g. 95%', '<88')");
+            + "VALUES ('Oxygen Saturation', 'the fraction of hemoglobin that is saturated by oxygen e.g. 95%', '<88')");
             stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
-            		+ "VALUES ('Pain', 'Scale [1 – 10]', '>7')");
+            + "VALUES ('Pain', 'Scale [1 - 10]', '>7')");
             stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
-            		+ "VALUES ('Contraction', 'Frequency - # per hour', '>4')");
+            + "VALUES ('Contraction', 'Frequency - # per hour', '>4')");
             stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
-            		+ "VALUES ('Blood Pressure', 'Systolic', '>140')");
+            + "VALUES ('Blood Pressure', 'Systolic', '>140')");
             stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
-            		+ "VALUES ('Blood Pressure', 'Diastolic', '>90')");
+            + "VALUES ('Blood Pressure', 'Diastolic', '>90')");
 
 
             stmt.executeUpdate("CREATE TABLE messages " +
@@ -224,15 +223,15 @@ public class DBAPI {
             stmt.executeUpdate("create table HAS_HF"+
                 "(hf_id varchar(20), patient_id varchar(10), on_date DATE, PRIMARY KEY(hf_id,patient_id), FOREIGN KEY(patient_id) REFERENCES PATIENT_INFO)");
             stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
-            		+ "Values('tkerr', 'akazi', TO_DATE('04-01-2013'))");
+            + "Values('tkerr', 'akazi', TO_DATE('04-01-2013', 'DD.MM.YYYY'))");
             stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
-            		+ "Values('tkerr', 'mwatson', TO_DATE('03-04-2011'))");
+            + "Values('tkerr', 'mwatson', TO_DATE('03-04-2011', 'DD.MM.YYYY'))");
             stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
-            		+ "Values('scooper', 'ggeorge', TO_DATE('10-12-2012'))");
+            + "Values('scooper', 'ggeorge', TO_DATE('10-12-2012', 'DD.MM.YYYY'))");
             stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
-            		+ "Values('scooper', 'mwatson', TO_DATE('01-02-2013'))");
+            + "Values('scooper', 'mwatson', TO_DATE('01-02-2013', 'DD.MM.YYYY'))");
             stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
-            		+ "Values('scooper', 'tkerr', TO_DATE('05-04-2011'))");
+            + "Values('scooper', 'tkerr', TO_DATE('05-04-2011', 'DD.MM.YYYY'))");
         }
 
         catch(Throwable err) {
@@ -427,10 +426,8 @@ public class DBAPI {
               //  System.out.println("length ="+data.length);
   			  while(j!=data.length)
   			  {
-  			    System.out.println("Enter Threshold for :"+ data[j]);
-  			  String thresholdValue = sc.next();
   				  stmt.executeQuery("INSERT INTO Threshold_check (type,AdditionalInfo,Threshold)"+
-  			        		"values ('"+type+"','"+data[j]+"','"+thresholdValue+"')");   //This insertion is for patients , in case of physician you will have to modify Threshold according to the input
+  			        		"values ('"+type+"','"+data[j]+"','null')");   //This insertion is for patients , in case of physician you will have to modify Threshold according to the input
   				 //call the function which creates trigger for each type
   				 System.out.println("inserted in threshold");
   				  createTrigger(data[j]);
@@ -865,5 +862,29 @@ public class DBAPI {
         catch (SQLException e) {
         }
         return names;
+    }
+
+    public ArrayList<String> getAdditionalInfoFields(String type) {
+        ArrayList<String> infos = new ArrayList<String>();
+        try {
+            ResultSet rs_infos = stmt.executeQuery("SELECT AdditionalInfo FROM Threshold_Check WHERE Type = '" + type + "'");
+            while(rs_infos.next())
+                infos.add(rs_infos.getString("AdditionalInfo"));
+        }
+        catch (SQLException e) {
+        }
+        return infos;
+    }
+
+    public boolean insertThreshold(String type, String info, String threshold) {
+        boolean insert = false;
+        try {
+            stmt.executeQuery("UPDATE Threshold_Check SET Threshold = '" + threshold + "' WHERE Type = '" + 
+                type + "' AND AdditionalInfo = '" + info + "'");
+            insert = true;
+        }
+        catch (SQLException e) {
+        }
+        return insert;
     }
 }
