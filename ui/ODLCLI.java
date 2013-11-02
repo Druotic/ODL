@@ -241,12 +241,32 @@ public class ODLCLI
         String illness = in.nextLine().trim();
         if (illness.equals("N/A"))
              illness = "General";
+        String threshold = "";
         if(api.addNewType(type, category, additionalInfo, illness)) {
             System.out.println("Association between type \"" + type + "\" and patient class \"" +
                 illness + "\" successfully added (or already exists)!");
+            if(!illness.equals("General"))
+                promptThreshold(type);
         }
         else
             System.out.println("Failed to add association.");
+    }
+
+    public void promptThreshold(String type) {
+        ArrayList<String> infos = api.getAdditionalInfoFields(type);
+        System.out.print("Would you like to enter threshold value(s) for the entered observation type? (y/n)");
+        String input = in.nextLine().trim();
+        if (input.equals("y")) {
+            System.out.println("Enter values in the format '>n', '<n', or '=n' without quotes, no units, no extra text, etc.");
+            for(String info : infos) {
+                System.out.print("Threshold for \"" + info + "\": ");
+                String threshold = in.nextLine().trim();
+                if(api.insertThreshold(type, info, threshold))
+                    System.out.println("Threshold added for " + type + " - " + info + ".");
+                else
+                    System.out.println("Threshold could not be added for " + type + " - " + info + ".");
+            }
+        }
     }
 
     /**

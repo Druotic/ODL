@@ -866,4 +866,28 @@ public class DBAPI {
         }
         return names;
     }
+
+    public ArrayList<String> getAdditionalInfoFields(String type) {
+        ArrayList<String> infos = new ArrayList<String>();
+        try {
+            ResultSet rs_infos = stmt.executeQuery("SELECT AdditionalInfo FROM Threshold_Check WHERE Type = '" + type + "'");
+            while(rs_infos.next())
+                infos.add(rs_infos.getString("AdditionalInfo"));
+        }
+        catch (SQLException e) {
+        }
+        return infos;
+    }
+
+    public boolean insertThreshold(String type, String info, String threshold) {
+        boolean insert = false;
+        try {
+            stmt.executeQuery("UPDATE Threshold_Check SET Threshold = '" + threshold + "' WHERE Type = '" + 
+                type + "' AND AdditionalInfo = '" + info + "'");
+            insert = true;
+        }
+        catch (SQLException e) {
+        }
+        return insert;
+    }
 }
