@@ -35,10 +35,10 @@ public class ODLCLI
 
         System.out.println("Username (ie \"jsmith\"): ");
         String user = in.nextLine().trim();
-        //System.out.print("Password: ");
-        //String passwd = sc.nextLine().trim();
+       System.out.print("Password: ");
+       String passwd = in.nextLine().trim();
         //Use hidden password - comment out only for local testing
-        String passwd = new String(System.console().readPassword("Password: "));
+       // String passwd = new String(System.console().readPassword("Password: "));
         
         api = new DBAPI();
         if (!api.authDB(user, passwd)) {
@@ -98,10 +98,10 @@ public class ODLCLI
         System.out.print("\nUsername: ");
         uname=in.nextLine().trim();
         id=uname;
-        //System.out.print("Password: ");
+       System.out.print("Password: ");
         //Use hidden password - comment out only for local testing
-        password = new String(System.console().readPassword("Password: "));
-        //password=s.nextLine().trim();
+     //   password = new String(System.console().readPassword("Password: "));
+        password=in.nextLine().trim();
         //call to DBAPI.authLogin for validation
         try {
             role=api.authLogin(uname,password);
@@ -195,7 +195,7 @@ public class ODLCLI
         api.observationMenu(id);
         System.out.print("Enter your type of Observation : ");
         obsType= in.nextLine().trim();
-        System.out.println(obsType +":\nEnter :");
+       // System.out.println(obsType +":\nEnter :");
         System.out.println("Enter Date of Observation in mm/dd/yyyy format :");
         obsDate= in.nextLine().trim();
         System.out.println("Enter Time of Observation in HH:mm:ss format :");

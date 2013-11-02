@@ -208,10 +208,9 @@ public class DBAPI {
 
             stmt.executeUpdate("create table Observations" +
                 "(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20)," +
-                " AdditionalInfo varchar(100),value varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') )," + 
+                " AdditionalInfo varchar(100),threshValue varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') )," + 
                 " primary key (OId), foreign key (Type) references Observation_Type(Type))");
-            stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo)"+
-                "values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed, amount that was consumed')");
+            
 
 
             stmt.executeUpdate("create table Makes_Observation" +
@@ -306,8 +305,17 @@ public class DBAPI {
 	  {
 		  System.out.println("Enter "+ data[j]);
 		  Obs_Data = sc.next();
+		  String oid= "O"+counter;
 		  stmt.executeUpdate("Insert into Observations "+
 				  "values ('O"+counter+"','"+Obs_Type+"','"+ obsDate +"','"+ obsTime + "','"+data[j]+"','"+ Obs_Data +"','FALSE')");
+		  rs= stmt.executeQuery("select threshold from threshold_check where type='"+Obs_Type+"' and AdditionalInfo= '"+data[j]+"'");
+		  while(rs.next())
+			  {
+				  if(!(rs.getString("threshold").equals("null")))
+			  {
+				 createTrigger(Obs_Type,data[j],Obs_Data,oid);
+			  }  				 
+			  }
 		  j++;	
 		  counter++;
 	  }
@@ -335,7 +343,7 @@ public class DBAPI {
 	        	rs = stmt.executeQuery("select distinct type from observations o,makes_observation m where o.OId=m.OId and m.pId= '"+ patientId +"'");
 	        	 while (rs.next()) {
 	        		 String typeObv = rs.getString("type");
-	                 System.out.println(typeObv);
+	                System.out.println(typeObv);
 	                 i++;
 	             }  
 	        	 
@@ -346,10 +354,12 @@ public class DBAPI {
 
 	            while (rs.next()) {
 	                System.out.println("Selected Type:  " + rs.getString("type"));
-	                System.out.println(rs.getString("Oid"));
+	               // System.out.println(rs.getString("Oid"));
 	                System.out.println(rs.getString("date_of_observation"));
 	                System.out.println(rs.getString("time_of_observation"));
 	                System.out.println(rs.getString("AdditionalInfo"));
+	                System.out.println(rs.getString("threshValue"));
+	                
 	                i++;
 	            }
 	            System.out.println("End of Observation List.");
@@ -442,17 +452,20 @@ public class DBAPI {
             	 // System.out.println("length =");
                 rs = stmt.executeQuery("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                     "VALUES ('" + type + "','" + category + "','" + additionalInformation + "')" );
-               rs = stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
+               rs = stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "'')");
                 String [] data= additionalInformation.split(",");
                // System.out.println("additional info"+additionalInformation);
               //  System.out.println("length ="+data.length);
   			  while(j!=data.length)
   			  {
+  			   // System.out.println("Enter Threshold for :"+ data[j]);
+  			//  String thresholdValue = sc.next();
   				  stmt.executeQuery("INSERT INTO Threshold_check (type,AdditionalInfo,Threshold)"+
-  			        		"values ('"+type+"','"+data[j]+"','null')");   //This insertion is for patients , in case of physician you will have to modify Threshold according to the input
+  			        		"values ('"+type+"','"+data[j]+"',null)");   //This insertion is for patients , in case of physician you will have to modify Threshold according to the input
   				 //call the function which creates trigger for each type
-  				 System.out.println("inserted in threshold");
-  				  createTrigger(data[j]);
+  				// System.out.println("inserted in threshold");
+  				
+  				 // rs= stmt.executeQuery("select threshold from threshold_check where type='"+type+"' and AdditionalInfo= '"+data[j]+"'");
   				  j++;			  
   			  }
             }
@@ -465,20 +478,37 @@ public class DBAPI {
         return flag;
     }
     
-    public void createTrigger(String type)
+    public void createTrigger(String type,String additionalInfo,String val,String oid) throws SQLException
     {
     	 System.out.println("entered here");
+    	String value="";
+    	 rs= stmt.executeQuery("select threshold from threshold_check where type='"+type+"' and additionalInfo='"+additionalInfo+"'");
+    	 while(rs.next())
+    	 {
+    		 value=rs.getString("threshold");
+    	 }
     	
+    	 System.out.println(value);
+    	 
 		try {
-			stmt.executeQuery("create or replace TRIGGER try\n"+   //This trigger working now finally
-				  " after insert on Observations\n"+
-				" REFERENCING NEW AS newrow\n"+
-				  " for each row\n"+
-				"declare thresh varchar(50)\n"+
-				  "select t.threshold into thresh from threshold_check t, observations o where :newrow.additionalInfo=t.additionalInfo\n"+
-				  "if :newrow.threshvalue thresh then\n"+
-				  "update observations set isactive ='true' where OId=:newrow.OId\n"+
-				  "End if\n");
+			  rs= stmt.executeQuery("select oid from observations o where type='"+type+"' and additionalInfo='"+additionalInfo+"' and threshValue"+value+" and o.OId='"+oid+"'");
+			if(rs.next())
+			{
+				stmt.executeUpdate("update observations o set o.isactive ='TRUE'where o.OId ='"+rs.getString("oid")+"'");
+				System.out.println("Updated");
+			}
+			/*
+			ResultSet rs1 = stmt.executeQuery("CREATE OR REPLACE TRIGGER test_trigger123 "+
+					 "BEFORE INSERT ON Observations "+
+					 "REFERENCING NEW AS NEW "+
+					 "FOR EACH ROW "+
+					 "BEGIN "+
+					 "select t.threshold into thresh from threshold_check t, observations o where :NEW.additionalInfo=t.additionalInfo; "+
+					 "END; "+
+					 ""+
+					"/");
+			*/
+			
 			// System.out.println("enterede");
 			
 		} catch (SQLException e) {
@@ -710,15 +740,15 @@ public class DBAPI {
     
     public void viewAlerts(String id) //* added clause for empty set
  	{
-  		int i=0;
+  		int i=1;
          try
          {
-        	 rs = stmt.executeQuery("select type from Observations o,makes_observation m where o.oid=m.oid and m.pId='"+id+"' and isactive = 'True'");  
-        	 if(!rs.next())
+        	 rs = stmt.executeQuery("select type from Observations o,makes_observation m where o.oid=m.oid and m.pId='"+id+"' and isactive = 'TRUE'");  
+        	/* if(!rs.next())
         		 System.out.println("No Alerts.\n");
    	
         	 else{
-        		 rs = stmt.executeQuery("select type from Observations o,makes_observation m where o.oid=m.oid and m.pId='"+id+"' and isactive = 'True'");  
+        		 rs = stmt.executeQuery("select type from Observations o,makes_observation m where o.oid=m.oid and m.pId='"+id+"' and isactive = 'True'");  */
         
         		 while (rs.next()) {
 		    
@@ -726,7 +756,7 @@ public class DBAPI {
         			 i++;
         		 	} 
         		 stmt.executeQuery("update Observations o set o.isactive='False' where  o.isactive = 'True'and exists (select pid from makes_observation m where m.pid='"+id+"' and  o.oid=m.oid)");
-        	 	}
+        	 	
  
          }
    	  	catch(Throwable err) {
@@ -744,7 +774,7 @@ public class DBAPI {
           {
         	  rs = stmt.executeQuery("select p.patient_name, m.text, m.on_date from messages m, patient_info p"
     			+ " where m.from_pId=p.patient_id and m.to_friend='"+id+"'");  
-        	  System.out.println("\tFROM\t\t MESSAGE\t\tDATE");
+        	//  System.out.println("\tFROM\t\t MESSAGE\t\tDATE");
         	  while (rs.next()) {
         		  System.out.println(i+". " + rs.getString("patient_name")+"\t\t"+rs.getString("text")+"\t\t"+rs.getString("on_date"));
         		  i++;
