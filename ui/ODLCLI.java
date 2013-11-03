@@ -21,12 +21,35 @@ public class ODLCLI
     {
         in = new Scanner(System.in);
         preStart();
+        queryPrompt();
         startMenu();
     }
 
     public static void main(String [] args)
     {
         new ODLCLI();
+    }
+
+    public void queryPrompt() {
+        System.out.println("Would you like to execute test queries (demo purposes)? (y/n)");
+        if(!in.nextLine().trim().equals("y"))
+            return;
+        int choice;
+        do {
+            System.out.println(" 1.  Find patients with the lowest weight amongst HIV patients.");
+            System.out.println(" 2.  Of all Obesity and High Risk Patients, find patients with the highest blood pressure.");
+            System.out.println(" 3.  Find patients who have healthfriends with no outstanding alerts.");
+            System.out.println(" 4.  Find patients who live in same city as healthfriend.");
+            System.out.println(" 5.  For PatientX, list their healthfriends, ordered by date in which friendships were initiated.");
+            System.out.println(" 6.  For each patient, find the number of healthfriends made in the last month.");
+            System.out.println(" 7.  For each patients and each type of observation, show the number of such observations recorded by the patients.");
+            System.out.println(" 8.  For each patient, and each of their healthfriends, list the number of lingering alerts of the healthfriend.");
+            System.out.println(" 9.  Continue to start menu.");
+            System.out.print("Choice: ");
+            choice = in.nextInt();
+            if(input != 9)
+                api.printQuery(input);
+        while (choice != 9);
     }
 
     public void preStart() {
