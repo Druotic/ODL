@@ -952,43 +952,4 @@ public class DBAPI {
         }
         return insert;
     }
-
-    public void printQuery(int choice) {
-        Scanner in = new Scanner(System.in);
-        try {
-            switch(choice) {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    System.out.print("Patient ID? ");
-                    String id = in.nextLine().trim();
-                    ResultSet rs = stmt.executeQuery("SELECT patient_name FROM (" + 
-                        "SELECT * FROM PATIENT_INFO p1, HAS_HF h1" +
-                        "WHERE h1.hf_id=p1.patient_id AND h1.patient_id='" + id + "'" +
-                        "UNION" +
-                        "SELECT * FROM PATIENT_INFO p2, HAS_HF h2 " +
-                        "WHERE h2.hf_id='" + id + "' AND h2.patient_id=p2.patient_id)" +
-                        "ORDER BY on_date");
-                    while (rs.next())
-                        System.out.println(rs.getString("patient_name"));
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    break;
-                case 8:
-                    break;
-                default:
-                    break;
-            }
-        }
-        catch (SQLException e) {
-        }
-    }
 }
