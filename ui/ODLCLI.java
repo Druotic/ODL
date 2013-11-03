@@ -47,9 +47,9 @@ public class ODLCLI
             System.out.println(" 9.  Continue to start menu.");
             System.out.print("Choice: ");
             choice = in.nextInt();
-            if(input != 9)
-                api.printQuery(input);
-        while (choice != 9);
+            if(choice != 9)
+                api.printQuery(choice);
+        } while (choice != 9);
     }
 
     public void preStart() {
