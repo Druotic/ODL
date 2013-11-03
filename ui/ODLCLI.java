@@ -21,35 +21,12 @@ public class ODLCLI
     {
         in = new Scanner(System.in);
         preStart();
-        queryPrompt();
         startMenu();
     }
 
     public static void main(String [] args)
     {
         new ODLCLI();
-    }
-
-    public void queryPrompt() {
-        System.out.println("Would you like to execute test queries (demo purposes)? (y/n)");
-        if(!in.nextLine().trim().equals("y"))
-            return;
-        int choice;
-        do {
-            System.out.println(" 1.  Find patients with the lowest weight amongst HIV patients.");
-            System.out.println(" 2.  Of all Obesity and High Risk Patients, find patients with the highest blood pressure.");
-            System.out.println(" 3.  Find patients who have healthfriends with no outstanding alerts.");
-            System.out.println(" 4.  Find patients who live in same city as healthfriend.");
-            System.out.println(" 5.  For PatientX, list their healthfriends, ordered by date in which friendships were initiated.");
-            System.out.println(" 6.  For each patient, find the number of healthfriends made in the last month.");
-            System.out.println(" 7.  For each patients and each type of observation, show the number of such observations recorded by the patients.");
-            System.out.println(" 8.  For each patient, and each of their healthfriends, list the number of lingering alerts of the healthfriend.");
-            System.out.println(" 9.  Continue to start menu.");
-            System.out.print("Choice: ");
-            choice = in.nextInt();
-            if(choice != 9)
-                api.printQuery(choice);
-        } while (choice != 9);
     }
 
     public void preStart() {
@@ -103,7 +80,14 @@ public class ODLCLI
                 login();
                 break;
             case "2":
-                createUser();
+            	try
+            	{
+            	createUser();
+            	}
+            	catch(Exception e)
+            	{
+            		
+            	}
                 break;
             case "3":
                 terminate(0, "Exiting.");
@@ -151,7 +135,14 @@ public class ODLCLI
         if (choice.equals("1"))
             login();
         else if (choice.equals("2"))
-            createUser();
+        	try
+    	{
+    	createUser();
+    	}
+    	catch(Exception e)
+    	{
+    		
+    	}
         else if (choice.equals("3"))
             startMenu();
         else {
@@ -160,11 +151,96 @@ public class ODLCLI
         }
     }
 
-    public void createUser()
+    public void createUser() throws SQLException
     {
-        System.out.println("Create user screen not yet implemented, returning to start menu.");
-        startMenu();
+    	String name="", address="", password="", patientID="", hpID="", description="";
+    	String apt_no="", street_name="", city="", state="", zipcode="";
+    	String clinic="";
+    	String sex, publicStatus;
+    	int age=0;
+    	
+        System.out.println("Create profile as:- \n\n1. Patient\n2. Physician\n3. Nurse");
+        Scanner in = new Scanner(System.in);
+        int role=0;
+        role=in.nextInt();
+
+        switch(role)
+        {
+        case 1:
+        	System.out.println("Enter name: ");
+        	name=in.next();
+        	System.out.println("Enter Patient ID: ");
+        	patientID=in.next();
+        	// write function to check if patient id exists
+        	System.out.println("Enter password: ");
+        	password=in.next();
+        	
+        	System.out.println("Enter address with following fields--->\nApt no: ");
+        	apt_no=in.next();
+        	System.out.println("Street name: ");
+        	street_name=in.next();
+        	System.out.println("City: ");
+        	city=in.next();
+        	System.out.println("State: ");
+        	state=in.next();
+        	System.out.println("Zipcode : ");
+        	zipcode=in.next();
+        	System.out.println("Enter age: ");
+        	age=in.nextInt();
+        	System.out.println("Enter sex [M/F]: ");
+        	sex=in.next();
+        	System.out.println("Enter public status [Y/N]: ");
+        	publicStatus=in.next();
+        	
+        	api.createPatient(name,patientID,password,address,age,sex,publicStatus);
+        	api.addAddress(patientID,apt_no,street_name,city,state,zipcode);
+        	startMenu();
+        	break;
+        
+        
+    	case 2:
+           	description="Physician";
+           	description="Nurse";
+        	System.out.println("Enter name: ");
+        	name=in.next();
+        	System.out.println("Enter Physician ID: ");
+        	hpID=in.next();
+        	// write function to check if patient id exists
+        	System.out.println("Enter password: ");
+        	password=in.next();
+        	System.out.println("Enter clinic: ");
+        	clinic=in.next();
+        	
+        	api.createHP(name,hpID,password,clinic,description);
+        	startMenu();
+            break;
+             	
+        case 3:
+        	description="Nurse";
+        	System.out.println("Enter name: ");
+        	name=in.next();
+        	System.out.println("Enter Physician ID: ");
+        	hpID=in.next();
+        	// write function to check if patient id exists
+        	System.out.println("Enter password: ");
+        	password=in.next();
+        	System.out.println("Enter clinic: ");
+        	clinic=in.next();
+        	
+        	api.createHP(name,hpID,password,clinic,description);
+        	startMenu();
+        	break;
+        	
+        	default:
+        	{
+        		System.out.println("Invalid input. Retry.");
+        		startMenu();
+        	}
+        	
+        }	
+       
     }
+
     public void terminate(int status, String msg)
     {
         System.out.println(msg + "\n");

@@ -79,23 +79,41 @@ public class DBAPI {
         System.out.println("Initializing tables with sample data.");
         try
         {
-            stmt.executeUpdate("CREATE TABLE Patient_Info " +
-                "(Patient_NAME VARCHAR(32), Address varchar (100), Age integer,Sex varchar(6),Patient_Id varchar (10)," +
-                " Password varchar(16), PublicStatus char(2), primary key (Patient_Id))");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                "VALUES ('Gary George', '2806 Conifer Drive, Raleigh, NC 27606', 25 , 'Male','ggeorge','geo123','Y')");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                "VALUES ('Sheldon Cooper', '2808 Avent Ferry Road, Raleigh, NC 27616', 33 , 'Female','scooper','cooper123','Y')");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                    "VALUES ('Adnan Kazi', '1234 Capability Drive, Raleigh, NC 27655', 31 , 'Female','akazi','kazi123','Y')");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                    "VALUES ('Neha Shetty', '440 Sullivan Drive, Chapel Hill, NC 27517', 40 , 'Female','nshetty','shetty123','Y')");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                    "VALUES ('Michael Watson', '2222 Gorman Street, Raleigh, NC 27678', 47 , 'Male','mwatson','watson123','Y')");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                    "VALUES ('Tom Kerr', '1430 Collegeview Ave,Durham, NC 27701', 40 , 'Male','tkerr','tkerr123','Y')");
-            stmt.executeUpdate("INSERT INTO Patient_Info " +
-                    "VALUES ('Maya Tran', '100 Brown Circle,Chapel Hill, NC 27516', 37 , 'Female','mtran','tran123','Y')");
+        	stmt.executeUpdate("CREATE TABLE Patient_Info " +
+                    "(Patient_NAME VARCHAR(32), Age integer,Sex varchar(6),Patient_Id varchar (10)," +
+                    " Password varchar(16), PublicStatus char(2), primary key (Patient_Id))");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                   "VALUES ('Gary George', 25 , 'Male','ggeorge','geo123','Y')");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                    "VALUES ('Sheldon Cooper', 33 , 'Female','scooper','cooper123','Y')");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                        "VALUES ('Adnan Kazi', 31 , 'Female','akazi','kazi123','Y')");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                        "VALUES ('Neha Shetty', 40 , 'Female','nshetty','shetty123','Y')");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                        "VALUES ('Michael Watson', 47 , 'Male','mwatson','watson123','Y')");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                        "VALUES ('Tom Kerr', 40 , 'Male','tkerr','tkerr123','Y')");
+                stmt.executeUpdate("INSERT INTO Patient_Info " +
+                        "VALUES ('Maya Tran', 37 , 'Female','mtran','tran123','Y')");
+                        
+                stmt.executeUpdate("CREATE TABLE Address " +
+                        "(Patient_id VARCHAR(32), apt_no varchar (100), street_name varchar(100), city varchar(20), State varchar(32), zipcode varchar(10),"
+                        + " primary key (Patient_Id))");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('ggeorge','2806','Avent Ferry Road', 'Raleigh', 'NC', '27607')");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('scooper','2808', 'Avent Ferry Road', 'Raleigh', 'NC', '27616')");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('akazi','1234', 'Capability Drive', 'Raleigh', 'NC', '27655')");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('nshetty','440', 'Sullivan Drive', 'Chapel Hill', 'NC', '27517')");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('mwatson','2222', 'Gorman Street', 'Raleigh', 'NC', '27678')");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('tkerr','1430', 'Collegeview Ave','Durham', 'NC', '27701')");
+                stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+                		+ "values('mtran','100', 'Brown Circle', 'Chapel Hill', 'NC', '27516')");
                     
 
 
@@ -204,6 +222,7 @@ public class DBAPI {
                  "(from_pId varchar (20), to_friend varchar(20), on_date DATE, text varchar(100)," +
                  " foreign key (from_pID) references Patient_Info, foreign key (to_friend) references Patient_Info, " +
                 "primary key (from_pId, to_friend))" );
+            
 
 
             stmt.executeUpdate("create table Observations" +
@@ -211,11 +230,88 @@ public class DBAPI {
                 " AdditionalInfo varchar(100),threshValue varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') )," + 
                 " primary key (OId), foreign key (Type) references Observation_Type(Type))");
             
-
-
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O1','Diet','4/5/2013','08:40:00','What was consumed','Eggs','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O2','Diet','4/5/2013','08:40:00','Amount in Servings','1','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O3','Weight','4/5/2013','08:05:00','Amount','100','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O4','Exercise','4/5/2013','07:35:00','Type','walking','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O5','Exercise','4/5/2013','07:35:00','Duration','30','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O6','Mood','4/5/2013','09:00:00','Value','Neutral','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O7','Temperature','4/5/2013','6:00:00','Amount','98.2','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O8','Exercise Tolerance','4/5/2013','11:00:00','Amount','20','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O9','Oxygen Saturation','4/5/2013','10:00:00','Amount','78','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O10','Weight','4/6/2013','08:00:00','Amount','102','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O11','Weight','4/5/2013','07:50:00','Amount','150','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O12','Weight','4/6/2013','08:00:00','Amount','156','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O13','Blood Pressure','4/6/2013','07:50:00','Systolic','150','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O14','Blood Pressure','4/6/2013','07:50:00','Diastolic','150','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O15','Blood Pressure','4/8/2013','08:00:00','Systolic','170','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O16','Blood Pressure','4/8/2013','08:00:00','Diastolic','90','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O17','Blood Pressure','4/6/2013','07:50:00','Systolic','162','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O18','Blood Pressure','4/6/2013','07:50:00','Diastolic','110','FALSE')");
+            stmt.executeUpdate("INSERT INTO Observations (OId, Type,Date_of_observation,time_of_observation,AdditionalInfo,ThreshValue,isactive) "
+                    + " VALUES ('O19','Pain','4/6/2013','13:0:00','Amount','8','FALSE')");
+            
+            
             stmt.executeUpdate("create table Makes_Observation" +
                     "(pId varchar(10), OId varchar(5), datetime_of_record timestamp, foreign key (pId) references Patient_Info(Patient_Id), " +
-                        "foreign key(OId) references Observations)");
+                        "foreign key(OId) references Observations, primary key(Pid,OId))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O1',TO_DATE('2013/05/04 08:40:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O2',TO_DATE('2013/05/04 08:40:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O3',TO_DATE('2013/05/04 08:05:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O4',TO_DATE('2013/05/04 07:35:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O5',TO_DATE('2013/05/04 07:35:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O6',TO_DATE('2013/05/04 21:00:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O7',TO_DATE('2013/05/04 06:10:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O8',TO_DATE('2013/05/04 21:00:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O9',TO_DATE('2013/05/04 10:10:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+            		+ "values('scooper','O10',TO_DATE('2013/05/04 08:06:44', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('ggeorge','O11',TO_DATE('2013/05/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('ggeorge','O12',TO_DATE('2013/06/04 08:05:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('akazi','O13',TO_DATE('2013/06/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('akazi','O14',TO_DATE('2013/06/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('akazi','O15',TO_DATE('2013/06/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('akazi','O16',TO_DATE('2013/06/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('nshetty','O17',TO_DATE('2013/06/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('nshetty','O18',TO_DATE('2013/06/04 08:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            stmt.executeUpdate("insert into makes_observation(pId,OId,datetime_of_record) "
+                    + "values('mtran','O19',TO_DATE('2013/06/04 18:00:00', 'yyyy/mm/dd hh24:mi:ss'))");
+            
     
 
 
@@ -239,6 +335,14 @@ public class DBAPI {
         }
         return true;
     }
+
+    public void addAddress(String patient_id, String apt_no, String street_name, String city, String state, String zipcode) throws SQLException
+    {
+    	stmt.executeUpdate("INSERT INTO address(patient_id,apt_no, street_name, city, State , zipcode) "
+         		+ "values('"+patient_id+"','"+apt_no+"','"+street_name+"','"+city+"','"+state+"','"+zipcode+"')");
+         
+    }
+
     public void observationMenu(String patientId)
     {
         int i=1;
@@ -951,44 +1055,5 @@ public class DBAPI {
         catch (SQLException e) {
         }
         return insert;
-    }
-
-    public void printQuery(int choice) {
-        Scanner in = new Scanner(System.in);
-        try {
-            switch(choice) {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    System.out.print("Patient ID? ");
-                    String id = in.nextLine().trim();
-                    ResultSet rs = stmt.executeQuery("SELECT patient_name FROM (" + 
-                        "SELECT * FROM PATIENT_INFO p1, HAS_HF h1" +
-                        "WHERE h1.hf_id=p1.patient_id AND h1.patient_id='" + id + "'" +
-                        "UNION" +
-                        "SELECT * FROM PATIENT_INFO p2, HAS_HF h2 " +
-                        "WHERE h2.hf_id='" + id + "' AND h2.patient_id=p2.patient_id)" +
-                        "ORDER BY on_date");
-                    while (rs.next())
-                        System.out.println(rs.getString("patient_name"));
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    break;
-                case 8:
-                    break;
-                default:
-                    break;
-            }
-        }
-        catch (SQLException e) {
-        }
     }
 }
