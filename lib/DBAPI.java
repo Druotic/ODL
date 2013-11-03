@@ -53,6 +53,7 @@ public class DBAPI {
             stmt.executeUpdate("drop table Observation_Type");
             stmt.executeUpdate("drop table HP_INFO");
             stmt.executeUpdate("drop table patient_info");
+            stmt.executeUpdate("drop table address");
             conn.commit();
         }
         catch(Throwable err) {
@@ -480,14 +481,13 @@ public class DBAPI {
             rs = stmt.executeQuery("select distinct type from observations o,makes_observation m where o.OId=m.OId and m.pId= '"+ id +"'");
             while (rs.next()) {
                 String type = rs.getString("type");
-                result += "\n" + "---" + type + "---";
+                result += "\n" + "---" + type + "---\n";
                 ResultSet rs_inner = stmt.executeQuery("select * from Observations o,makes_observation m where o.oid=m.oid and o.type='"+type+"' and m.pid='"+id+"'" +
                     " ORDER BY o.Date_of_observation, o.time_of_observation");
                 while (rs_inner.next()) {
                     result += "Date of Observation: " + rs_inner.getString("date_of_observation") + "\n";
                     result += "Time of Observation: " + rs_inner.getString("time_of_observation") + "\n";
-                    result += rs_inner.getString("AdditionalInfo") + ": " + rs_inner.getString("ThreshValue") + "\n";
-                    //TODO - add actual value
+                    result += rs_inner.getString("AdditionalInfo") + ": " + rs_inner.getString("ThreshValue") + "\n\n";
                 }
             }
             System.out.println("End of Observation List.");
